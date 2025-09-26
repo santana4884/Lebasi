@@ -455,12 +455,13 @@
             modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
             document.getElementById('quantidade').addEventListener('input', () => gerarCamposJogadores(parseInt(document.getElementById('quantidade').value, 10) || 0));
             document.getElementById('arte').addEventListener('change', (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { document.getElementById('arte-preview').src = event.target.result; document.getElementById('arte-preview').style.display = 'block'; document.getElementById('arte-base64').value = event.target.result; }; reader.readAsDataURL(file); });
-            async function criarColunasIniciais() { const colunas = [ { id: 'coluna-1', titulo: 'Novos Pedidos', order: 0, cartoes: [] }, { id: 'coluna-2', titulo: 'Arte / Design', order: 1, cartoes: [] }, { id: 'coluna-3', titulo: 'Em Produção', order: 2, cartoes: [] }, { id: 'coluna-4', titulo: 'Pronto p/ Entrega', order: 3, cartoes: [] }, { id: 'coluna-5', titulo: 'Entregue / Faturado', order: 4, cartoes: [] } ]; const batch = db.batch(); colunas.forEach(col => { const docRef = db.collection("kanban-board").doc(col.id); batch.set(docRef, col); }); await batch.commit(); }
+            async function criarColunasIniciais() { const colunas = [ { id: 'coluna-1', titulo: 'Novos Pedidos', order: 0, cartoes: [] }, { id: 'coluna-2', titulo: 'Arte / Design', order: 1, cartoes: [] }, { id: 'coluna-3', titulo: 'Em Produção', order: 2, cartoes: [] }, { id: 'coluna-4', titulo: 'Pronto p/ Entrega', order: 3, cartoes: [] } ]; const batch = db.batch(); colunas.forEach(col => { const docRef = db.collection("kanban-board").doc(col.id); batch.set(docRef, col); }); await batch.commit(); }
             carregarQuadroEmTempoReal();
         });
     </script>
 </body>
 </html>
+
 
 
 
