@@ -132,7 +132,7 @@
     <div class="container-principal">
         <header>
              <div class="header-esquerda">
-                <h1>Meu Kanban de Pedidos</h1>
+                <img src="logo.png" alt="Logo da Loja" style="height: 100px;">
                 <div class="theme-switch-wrapper">
                     <label class="theme-switch" for="checkbox">
                         <input type="checkbox" id="checkbox" />
@@ -440,7 +440,7 @@
             const toggleSwitch = document.getElementById('checkbox');
             toggleSwitch.addEventListener('change', (e) => { document.body.classList.toggle('dark-mode', e.target.checked); localStorage.setItem('theme', e.target.checked ? 'dark' : 'light'); });
             const currentTheme = localStorage.getItem('theme');
-            if (currentTheme === 'dark') { document.body.classList.add('dark-mode'); toggleSwitch.checked = true; }
+            if (currentTheme !== 'light') { document.body.classList.add('dark-mode'); toggleSwitch.checked = true; }
             
             document.getElementById('btn-novo-pedido').addEventListener('click', abrirModalParaNovo);
             document.getElementById('btn-cancelar-modal').addEventListener('click', () => modal.style.display = 'none');
@@ -463,6 +463,4 @@
     </script>
 </body>
 </html>
-
-
 
