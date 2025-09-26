@@ -27,7 +27,7 @@
             --cor-borda: #dfe1e6;
             --cor-azul-principal: #0052cc;
             --cor-azul-hover: #005ef9;
-            --cor-verde-principal: #00875A;
+            --cor-verde-principal: #00875a00;
             --cor-verde-hover: #006644;
             --espacamento: 16px;
             --raio-borda: 8px;
@@ -43,7 +43,7 @@
             --cor-borda: #30363d;
             --cor-azul-principal: #388bfd;
             --cor-azul-hover: #58a6ff;
-            --cor-verde-principal: #238636;
+            --cor-verde-principal: #23863700;
             --cor-verde-hover: #2ea043;
         }
 
@@ -126,20 +126,24 @@
 
     <div class="container-principal">
         <header>
-             <div class="header-esquerda">
-                <h1>Meu Kanban de Pedidos</h1>
-                <div class="theme-switch-wrapper">
-                    <label class="theme-switch" for="checkbox">
-                        <input type="checkbox" id="checkbox" />
-                        <div class="slider round"></div>
-                    </label>
-                </div>
-            </div>
-            <button class="btn-adicionar" id="btn-novo-pedido">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                Novo Pedido
-            </button>
-        </header>
+     <div class="header-esquerda">
+        <h1>Meu Kanban de Pedidos</h1>
+        <div class="theme-switch-wrapper">
+            <label class="theme-switch" for="checkbox">
+                <input type="checkbox" id="checkbox" />
+                <div class="slider round"></div>
+            </label>
+        </div>
+    </div>
+    <nav>
+        <a href="organizador.html" class="nav-link" style="background-color: var(--cor-verde-principal); color: white;">Ir para o Organizador</a>
+    </nav>
+    <button class="btn-adicionar" id="btn-novo-pedido">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Novo Pedido
+    </button>
+</header>
+
         <div class="quadro-kanban" id="quadro-kanban"></div>
     </div>
 
