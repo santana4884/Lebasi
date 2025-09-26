@@ -32,9 +32,7 @@
             --cor-azul-hover: #58a6ff;
         }
 
-        html {
-            height: 100%;
-        }
+        html { height: 100%; }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -65,10 +63,7 @@
             align-items: center;
             gap: 20px;
         }
-        h1 {
-            font-size: 1.8rem;
-            margin: 0;
-        }
+        h1 { font-size: 1.8rem; margin: 0; }
         .theme-switch-wrapper { display: flex; align-items: center; }
         .theme-switch { display: inline-block; height: 24px; position: relative; width: 44px; }
         .theme-switch input { display:none; }
@@ -76,10 +71,7 @@
         .slider:before { background-color: #fff; bottom: 4px; content: ""; height: 16px; left: 4px; position: absolute; transition: .4s; width: 16px; border-radius: 50%; }
         input:checked + .slider { background-color: var(--cor-azul-principal); }
         input:checked + .slider:before { transform: translateX(20px); }
-        nav {
-            display: flex;
-            gap: 12px;
-        }
+        nav { display: flex; gap: 12px; }
         .nav-link {
             text-decoration: none;
             color: var(--cor-texto-primaria);
@@ -105,15 +97,8 @@
             box-shadow: 0 4px 8px var(--cor-sombra);
             min-height: 0;
         }
-        .painel {
-            display: flex;
-            flex-direction: column;
-        }
-        .painel h2 {
-            margin-top: 0;
-            border-bottom: 2px solid var(--cor-borda);
-            padding-bottom: 8px;
-        }
+        .painel { display: flex; flex-direction: column; }
+        .painel h2 { margin-top: 0; border-bottom: 2px solid var(--cor-borda); padding-bottom: 8px; }
         textarea {
             width: 100%;
             flex-grow: 1;
@@ -127,8 +112,12 @@
             color: var(--cor-texto-primaria);
             resize: none;
         }
-        .btn-organizar {
-            background-color: var(--cor-azul-principal);
+        .actions-container {
+            display: flex;
+            gap: 12px;
+            margin-top: var(--espacamento);
+        }
+        .btn-acao {
             color: white;
             border: none;
             padding: 12px 20px;
@@ -136,12 +125,24 @@
             font-weight: 600;
             border-radius: var(--raio-borda);
             cursor: pointer;
-            transition: background-color 0.2s ease;
-            margin-top: var(--espacamento);
+            transition: background-color 0.2s ease, opacity 0.2s ease;
+            flex-grow: 1;
         }
-        .btn-organizar:hover {
-            background-color: var(--cor-azul-hover);
+        #btn-organizar { background-color: var(--cor-azul-principal); }
+        #btn-organizar:hover { background-color: var(--cor-azul-hover); }
+
+        /* Novo Botão */
+        #btn-criar-kanban {
+            background-color: #00875A; /* Verde */
+            opacity: 0.5;
+            cursor: not-allowed;
         }
+        #btn-criar-kanban:not(:disabled):hover { background-color: #006644; }
+        #btn-criar-kanban:not(:disabled) {
+            opacity: 1;
+            cursor: pointer;
+        }
+        
         .resultado-actions {
             display: flex;
             justify-content: space-between;
@@ -159,21 +160,12 @@
              cursor: pointer;
              transition: background-color 0.2s ease;
         }
-        .btn-copiar:hover {
-            background-color: var(--cor-texto-primaria);
-        }
+        .btn-copiar:hover { background-color: var(--cor-texto-primaria); }
 
         @media (max-width: 768px) {
-            body {
-                height: auto;
-            }
-            .organizador-container {
-                grid-template-columns: 1fr;
-                height: auto;
-            }
-            textarea {
-                min-height: 200px;
-            }
+            body { height: auto; }
+            .organizador-container { grid-template-columns: 1fr; height: auto; }
+            textarea { min-height: 200px; }
         }
     </style>
 </head>
@@ -198,7 +190,10 @@
             <div class="painel">
                 <h2>1. Cole a lista do cliente aqui</h2>
                 <textarea id="input-lista" placeholder="Exemplo:&#10;Ana P 22&#10;Kaio Gabriel&#10;Tam: PP&#10;Num: 88&#10;&#10;3 M NUMERAÇÃO 10/12/14"></textarea>
-                <button class="btn-organizar" id="btn-organizar">Organizar Lista</button>
+                <div class="actions-container">
+                    <button class="btn-acao" id="btn-organizar">Organizar Lista</button>
+                    <button class="btn-acao" id="btn-criar-kanban" disabled>Criar Pedido no Kanban</button>
+                </div>
             </div>
             <div class="painel">
                 <h2>2. Copie o resultado ordenado</h2>
@@ -222,19 +217,22 @@
         const inputLista = document.getElementById('input-lista');
         const outputNomes = document.getElementById('output-nomes');
         const outputNumeros = document.getElementById('output-numeros');
+        const btnCriarKanban = document.getElementById('btn-criar-kanban');
+
+        let jogadoresOrganizados = [];
         
         btnOrganizar.addEventListener('click', () => {
             const texto = inputLista.value;
-            const jogadores = parseTextoLista(texto);
+            jogadoresOrganizados = parseTextoLista(texto);
             
             const ordemTamanhos = { 'PP': 1, 'P': 2, 'M': 3, 'G': 4, 'GG': 5, 'XG': 6 };
-            jogadores.sort((a, b) => (ordemTamanhos[a.tamanho] || 99) - (ordemTamanhos[b.tamanho] || 99));
+            jogadoresOrganizados.sort((a, b) => (ordemTamanhos[a.tamanho] || 99) - (ordemTamanhos[b.tamanho] || 99));
 
             let nomesString = '';
             let numerosString = '';
             let tamanhoAtual = null;
 
-            jogadores.forEach(j => {
+            jogadoresOrganizados.forEach(j => {
                 if (j.tamanho !== tamanhoAtual) {
                     tamanhoAtual = j.tamanho;
                     const separador = `----------- ${tamanhoAtual} -----------`;
@@ -252,17 +250,30 @@
 
             outputNomes.value = nomesString.trimEnd();
             outputNumeros.value = numerosString.trimEnd();
+
+            if (jogadoresOrganizados.length > 0) {
+                btnCriarKanban.disabled = false;
+            }
+        });
+
+        // NOVA FUNCIONALIDADE
+        btnCriarKanban.addEventListener('click', () => {
+            if (jogadoresOrganizados.length > 0) {
+                localStorage.setItem('novoPedidoData', JSON.stringify(jogadoresOrganizados));
+                window.location.href = 'index.html';
+            }
         });
 
         function parseTextoLista(texto) {
             const linhas = texto.split('\n').map(l => l.trim()).filter(l => l);
-            const jogadores = [];
+            let jogadores = [];
             let i = 0;
 
             while (i < linhas.length) {
                 let linha = linhas[i];
                 let jogador = {};
 
+                // Regra para "3 M NUMERAÇÃO 10/12/14"
                 let matchResumo = linha.match(/^(\d+)\s+([A-Z]{1,2})\s+NUMERAÇ[AÃ]O\s+([0-9\s/]+)/i);
                 if (matchResumo) {
                     const [, quantidade, tamanho, numerosStr] = matchResumo;
@@ -278,6 +289,7 @@
                     continue;
                 }
                 
+                // Regra para "Nome: ... Tam: ... Num: ..."
                 if (linha.match(/nome:/i)) {
                     jogador.nome = linha.replace(/nome:/i, '').trim();
                     if (linhas[i + 1] && linhas[i + 1].match(/tam:/i)) {
@@ -293,20 +305,27 @@
                      continue;
                 }
 
-                let matchLinhaUnica = linha.match(/^(.+?)\s+([A-Z]{1,2})\.?\s+([0-9]+)$/i);
+                // Regra para "Nome Tamanho Numero" numa só linha
+                let matchLinhaUnica = linha.match(/^(.*?)\s+([A-Z]{1,2})\.?\s+([0-9]+)$/i);
                  if (matchLinhaUnica) {
-                    jogadores.push({
-                        nome: matchLinhaUnica[1].trim(),
-                        tamanho: matchLinhaUnica[2].toUpperCase(),
-                        numero: matchLinhaUnica[3]
-                    });
-                    i++;
-                    continue;
+                    const [, nome, tamanho, numero] = matchLinhaUnica;
+                    // Verifica se o nome não é um tamanho válido para evitar falsos positivos
+                    const tamanhosValidosCheck = ['PP', 'P', 'M', 'G', 'GG', 'XG'];
+                    if (!tamanhosValidosCheck.includes(nome.toUpperCase())) {
+                        jogadores.push({
+                            nome: nome.trim(),
+                            tamanho: tamanho.toUpperCase(),
+                            numero: numero
+                        });
+                        i++;
+                        continue;
+                    }
                 }
                 
-                let nome = linha;
-                let tamanho = linhas[i + 1];
-                let numero = linhas[i + 2];
+                // Regra padrão "Nome \n Tamanho \n Numero"
+                const nome = linha;
+                const tamanho = linhas[i + 1];
+                const numero = linhas[i + 2];
                 
                 const tamanhosValidos = ['PP', 'P', 'M', 'G', 'GG', 'XG'];
                 if(tamanho && tamanhosValidos.includes(tamanho.toUpperCase().replace('.', '')) && numero && !isNaN(parseInt(numero, 10))) {
@@ -318,7 +337,8 @@
                     i += 3;
                     continue;
                 }
-
+                
+                // Se nenhuma regra corresponder, avança para a próxima linha para evitar loop infinito
                 i++;
             }
             return jogadores;

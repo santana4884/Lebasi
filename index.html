@@ -11,12 +11,11 @@
     <!-- SortableJS: Biblioteca para arrastar e soltar -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     
-    <!-- Scripts do Firebase - Adicionados para a versão multi-usuário -->
+    <!-- Scripts do Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
 
     <style>
-        /* O CSS permanece o mesmo da versão anterior */
         :root {
             --cor-fundo: #f4f7fd;
             --cor-coluna-fundo: #e9eef8;
@@ -27,8 +26,6 @@
             --cor-borda: #dfe1e6;
             --cor-azul-principal: #0052cc;
             --cor-azul-hover: #005ef9;
-            --cor-verde-principal: #00875a00;
-            --cor-verde-hover: #006644;
             --espacamento: 16px;
             --raio-borda: 8px;
         }
@@ -43,8 +40,6 @@
             --cor-borda: #30363d;
             --cor-azul-principal: #388bfd;
             --cor-azul-hover: #58a6ff;
-            --cor-verde-principal: #23863700;
-            --cor-verde-hover: #2ea043;
         }
 
         body { font-family: 'Inter', sans-serif; background-color: var(--cor-fundo); color: var(--cor-texto-primaria); margin: 0; padding: var(--espacamento); overflow-x: auto; transition: background-color 0.3s, color 0.3s; }
@@ -59,9 +54,26 @@
         .slider:before { background-color: #fff; bottom: 4px; content: ""; height: 16px; left: 4px; position: absolute; transition: .4s; width: 16px; border-radius: 50%; }
         input:checked + .slider { background-color: var(--cor-azul-principal); }
         input:checked + .slider:before { transform: translateX(20px); }
+        
+        nav { display: flex; gap: 12px; }
+        .nav-link {
+            text-decoration: none;
+            color: var(--cor-texto-primaria);
+            background-color: var(--cor-cartao-fundo);
+            padding: 8px 16px;
+            border-radius: var(--raio-borda);
+            font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px var(--cor-sombra);
+        }
+        .nav-link:hover {
+            background-color: var(--cor-azul-principal);
+            color: white;
+        }
+        
         .btn-adicionar { background-color: var(--cor-azul-principal); color: white; border: none; padding: 10px 16px; font-size: 1rem; font-weight: 500; border-radius: var(--raio-borda); cursor: pointer; transition: background-color 0.2s ease; display: flex; align-items: center; gap: 8px; }
         .btn-adicionar:hover { background-color: var(--cor-azul-hover); }
-        .quadro-kanban { display: flex; gap: var(--espacamento); align-items: flex-start; min-height: 80vh; padding-bottom: 60px; }
+        .quadro-kanban { display: flex; gap: var(--espacamento); align-items: flex-start; min-height: 80vh; }
         .coluna { background-color: var(--cor-coluna-fundo); border-radius: var(--raio-borda); padding: calc(var(--espacamento) / 2); width: 320px; min-width: 320px; flex-shrink: 0; transition: background-color 0.3s; }
         .coluna-header { padding: 8px; margin-bottom: var(--espacamento); display: flex; justify-content: space-between; align-items: center; }
         .coluna-header h2 { font-size: 1.1rem; margin: 0; color: var(--cor-texto-primaria); }
@@ -109,16 +121,9 @@
         .btn-modal { padding: 10px 20px; border-radius: var(--raio-borda); border: none; cursor: pointer; font-weight: 500; }
         .btn-cancelar { background-color: var(--cor-coluna-fundo); color: var(--cor-texto-primaria); }
         .btn-salvar { background-color: var(--cor-azul-principal); color: white; }
-        .footer-actions { position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--cor-fundo); box-shadow: 0 -2px 10px var(--cor-sombra); padding: var(--espacamento); display: flex; justify-content: flex-start; gap: 12px; box-sizing: border-box; z-index: 500; }
-        .btn-footer { background-color: var(--cor-verde-principal); color: white; border: none; padding: 10px 16px; font-size: 0.9rem; font-weight: 500; border-radius: var(--raio-borda); cursor: pointer; transition: background-color 0.2s ease; display: flex; align-items: center; gap: 8px; }
-        .btn-footer:hover { background-color: var(--cor-verde-hover); }
-        .btn-footer.importar { background-color: var(--cor-texto-secundaria); }
-        .btn-footer.importar:hover { background-color: var(--cor-texto-primaria); }
-
-        /* Estilos para o novo modal de exportação */
         .export-modal-group { margin-bottom: 20px; }
         .export-modal-group label { display: block; font-weight: 600; margin-bottom: 8px; }
-        .export-modal-group textarea { width: 100%; height: 150px; resize: vertical; padding: 8px; font-family: monospace; font-size: 0.9rem; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
+        .export-modal-group textarea { width: 100%; height: 150px; resize: vertical; padding: 8px; font-family: monospace; font-size: 0.9rem; box-sizing: border-box; }
         .export-modal-actions { display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
@@ -126,28 +131,30 @@
 
     <div class="container-principal">
         <header>
-     <div class="header-esquerda">
-        <h1>Meu Kanban de Pedidos</h1>
-        <div class="theme-switch-wrapper">
-            <label class="theme-switch" for="checkbox">
-                <input type="checkbox" id="checkbox" />
-                <div class="slider round"></div>
-            </label>
-        </div>
-    </div>
-    <nav>
-        <a href="organizador.html" class="nav-link" style="background-color: var(--cor-verde-principal); color: white;">Ir para o Organizador</a>
-    </nav>
-    <button class="btn-adicionar" id="btn-novo-pedido">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        Novo Pedido
-    </button>
-</header>
+             <div class="header-esquerda">
+                <h1>Meu Kanban de Pedidos</h1>
+                <div class="theme-switch-wrapper">
+                    <label class="theme-switch" for="checkbox">
+                        <input type="checkbox" id="checkbox" />
+                        <div class="slider round"></div>
+                    </label>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <nav>
+                    <a href="organizador.html" class="nav-link">Organizador de Pedidos</a>
+                </nav>
+                <button class="btn-adicionar" id="btn-novo-pedido">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    Novo Pedido
+                </button>
+            </div>
+        </header>
 
         <div class="quadro-kanban" id="quadro-kanban"></div>
     </div>
 
-    <!-- Modal para Adicionar/Editar Pedido -->
+    <!-- Modais (Pedido, Exportação) -->
     <div class="modal-overlay" id="modal-pedido">
         <div class="modal-conteudo">
             <h2 id="modal-titulo">Adicionar Novo Pedido</h2>
@@ -193,8 +200,6 @@
             </form>
         </div>
     </div>
-
-    <!-- Modal para Exportar Dados para o Corel -->
     <div class="modal-overlay" id="modal-export-corel">
         <div class="modal-conteudo">
             <h2>Exportar para CorelDRAW</h2>
@@ -240,12 +245,10 @@
         document.addEventListener('DOMContentLoaded', () => {
             const quadroKanban = document.getElementById('quadro-kanban');
             
-            // ---- FUNÇÃO PRINCIPAL: CARREGAR QUADRO EM TEMPO REAL ----
             function carregarQuadroEmTempoReal() {
                 db.collection("kanban-board").orderBy("order").onSnapshot(snapshot => {
                     quadroKanban.innerHTML = ''; 
                     if (snapshot.empty) {
-                        console.log("Banco de dados vazio. Criando colunas iniciais...");
                         criarColunasIniciais();
                         return;
                     }
@@ -269,14 +272,12 @@
                 });
             }
 
-            // ---- FUNÇÕES DE MANIPULAÇÃO DE DADOS (CRUD com Firestore) ----
             async function salvarNovoCartao(dadosCartao) { const colunaRef = db.collection("kanban-board").doc('coluna-1'); await colunaRef.update({ cartoes: firebase.firestore.FieldValue.arrayUnion(dadosCartao) }); }
             async function atualizarCartaoExistente(dadosCartao, columnId) { const colunaRef = db.collection("kanban-board").doc(columnId); const doc = await colunaRef.get(); if (doc.exists) { const colunaData = doc.data(); const cartoesAtualizados = colunaData.cartoes.map(c => c.id === dadosCartao.id ? dadosCartao : c ); await colunaRef.update({ cartoes: cartoesAtualizados }); } }
             async function excluirCartao(cardId, columnId) { const colunaRef = db.collection("kanban-board").doc(columnId); const doc = await colunaRef.get(); if (doc.exists) { const colunaData = doc.data(); const cartoesAtualizados = colunaData.cartoes.filter(c => c.id !== cardId); await colunaRef.update({ cartoes: cartoesAtualizados }); } }
             async function salvarOrdemNoFirestore() { const batch = db.batch(); document.querySelectorAll('.coluna').forEach((colunaEl, index) => { const columnId = colunaEl.id; const cartoesOrdenados = []; colunaEl.querySelectorAll('.cartao').forEach((cartaoEl, cardIndex) => { const dados = JSON.parse(cartaoEl.dataset.cardData); dados.order = cardIndex; cartoesOrdenados.push(dados); }); const colunaRef = db.collection("kanban-board").doc(columnId); batch.update(colunaRef, { cartoes: cartoesOrdenados, order: index }); }); await batch.commit(); }
 
-            // ---- LÓGICA DE CRIAÇÃO DOS ELEMENTOS HTML ----
-             function criarCartao(cartaoData, columnId) {
+            function criarCartao(cartaoData, columnId) {
                 const { id, titulo, descricao, data, quantidade, jogadores, arte, comCalcao } = cartaoData;
                 const elementoCartao = document.createElement('div');
                 elementoCartao.id = id;
@@ -310,9 +311,7 @@
                     <div class="cartao-header">
                         <span class="titulo-cartao">${titulo}</span>
                         <div class="cartao-actions">
-                            <button class="btn-card-action btn-export-corel" title="Exportar para Corel">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                            </button>
+                            <button class="btn-card-action btn-export-corel" title="Exportar para Corel"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
                             <button class="btn-card-action btn-editar" title="Editar Pedido"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></button>
                             <button class="btn-card-action btn-excluir" title="Excluir Pedido"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
                         </div>
@@ -333,9 +332,8 @@
                 return elementoCartao;
             }
 
-            function criarColuna(colunaData) { const elementoColuna = document.createElement('div'); elementoColuna.id = colunaData.id; elementoColuna.className = 'coluna'; elementoColuna.innerHTML = ` <div class="coluna-header"> <h2>${colunaData.titulo}</h2> <span class="contador-cartoes">0</span> </div> <div class="cartoes"></div> `; return elementoColuna; }
+            function criarColuna(colunaData) { const el = document.createElement('div'); el.id = colunaData.id; el.className = 'coluna'; el.innerHTML = `<div class="coluna-header"><h2>${colunaData.titulo}</h2><span class="contador-cartoes">0</span></div><div class="cartoes"></div>`; return el; }
 
-            // ---- LÓGICA DO MODAL ----
             const modal = document.getElementById('modal-pedido');
             const formPedido = document.getElementById('form-pedido');
             formPedido.addEventListener('submit', async (e) => {
@@ -362,22 +360,37 @@
                 };
                 if (dadosCartao.titulo && dadosCartao.descricao) {
                     if (document.getElementById('cardId').value) {
-                        const columnId = document.getElementById('columnId').value;
-                        await atualizarCartaoExistente(dadosCartao, columnId);
+                        await atualizarCartaoExistente(dadosCartao, document.getElementById('columnId').value);
                     } else {
                         await salvarNovoCartao(dadosCartao);
                     }
                     modal.style.display = 'none';
                 }
             });
-            function abrirModalParaEditar(cardId, columnId) { const elementoCartao = document.getElementById(cardId); if (!elementoCartao) return; const dadosCartao = JSON.parse(elementoCartao.dataset.cardData); formPedido.reset(); document.getElementById('modal-titulo').textContent = 'Editar Pedido'; document.getElementById('cardId').value = dadosCartao.id; document.getElementById('columnId').value = columnId; document.getElementById('titulo').value = dadosCartao.titulo; document.getElementById('descricao').value = dadosCartao.descricao; document.getElementById('data-entrega').value = dadosCartao.data; document.getElementById('quantidade').value = dadosCartao.quantidade || 0; document.getElementById('com-calcao').checked = dadosCartao.comCalcao || false; gerarCamposJogadores(dadosCartao.quantidade || 0, dadosCartao.jogadores); if (dadosCartao.arte) { document.getElementById('arte-preview').src = dadosCartao.arte; document.getElementById('arte-preview').style.display = 'block'; document.getElementById('arte-base64').value = dadosCartao.arte; } else { document.getElementById('arte-preview').style.display = 'none'; document.getElementById('arte-base64').value = ''; } modal.style.display = 'flex'; }
-            function abrirModalParaNovo() { formPedido.reset(); document.getElementById('cardId').value = ''; document.getElementById('columnId').value = 'coluna-1'; document.getElementById('modal-titulo').textContent = 'Adicionar Novo Pedido'; document.getElementById('arte-preview').style.display = 'none'; document.getElementById('arte-preview').src = ''; document.getElementById('arte-base64').value = ''; gerarCamposJogadores(0); modal.style.display = 'flex'; }
+
+            // NOVA FUNÇÃO
+            function abrirModalComDados(jogadores = []) {
+                formPedido.reset();
+                document.getElementById('cardId').value = '';
+                document.getElementById('columnId').value = 'coluna-1';
+                document.getElementById('modal-titulo').textContent = 'Novo Pedido (Importado)';
+                document.getElementById('arte-preview').style.display = 'none';
+                document.getElementById('arte-base64').value = '';
+                
+                const qtd = jogadores.length;
+                document.getElementById('quantidade').value = qtd;
+                gerarCamposJogadores(qtd, jogadores);
+                modal.style.display = 'flex';
+            }
+
+            function abrirModalParaEditar(cardId, columnId) { const el = document.getElementById(cardId); if (!el) return; const dados = JSON.parse(el.dataset.cardData); formPedido.reset(); document.getElementById('modal-titulo').textContent = 'Editar Pedido'; document.getElementById('cardId').value = dados.id; document.getElementById('columnId').value = columnId; document.getElementById('titulo').value = dados.titulo; document.getElementById('descricao').value = dados.descricao; document.getElementById('data-entrega').value = dados.data; document.getElementById('quantidade').value = dados.quantidade || 0; document.getElementById('com-calcao').checked = dados.comCalcao || false; gerarCamposJogadores(dados.quantidade || 0, dados.jogadores); if (dados.arte) { document.getElementById('arte-preview').src = dados.arte; document.getElementById('arte-preview').style.display = 'block'; document.getElementById('arte-base64').value = dados.arte; } else { document.getElementById('arte-preview').style.display = 'none'; } modal.style.display = 'flex'; }
+            function abrirModalParaNovo() { formPedido.reset(); document.getElementById('cardId').value = ''; document.getElementById('columnId').value = 'coluna-1'; document.getElementById('modal-titulo').textContent = 'Adicionar Novo Pedido'; document.getElementById('arte-preview').style.display = 'none'; document.getElementById('arte-base64').value = ''; gerarCamposJogadores(0); modal.style.display = 'flex'; }
             function gerarCamposJogadores(qtd, jogadores = []) {
                 const container = document.getElementById('jogadores-container');
                 container.innerHTML = '';
                 if (qtd === 0) { container.innerHTML = '<small>Preencha a quantidade para gerar os campos.</small>'; return; }
                 for (let i = 0; i < qtd; i++) {
-                    const jogador = jogadores[i] || { tamanho: 'M' }; // Padrão 'M' para novos campos
+                    const jogador = jogadores[i] || { tamanho: 'M' };
                     const div = document.createElement('div');
                     div.className = 'jogador-input-group';
                     const tamanhosOptions = ['PP', 'P', 'M', 'G', 'GG', 'XG'].map(t => `<option value="${t}" ${t === jogador.tamanho ? 'selected' : ''}>${t}</option>`).join('');
@@ -389,79 +402,65 @@
                     container.appendChild(div);
                 }
             }
-
-            // ---- LÓGICA DO MODAL DE EXPORTAÇÃO ----
+            
             const modalExport = document.getElementById('modal-export-corel');
-            const corelNomes = document.getElementById('corel-nomes');
-            const corelNumeros = document.getElementById('corel-numeros');
-
             function abrirModalExportCorel(cardId) {
-                const elementoCartao = document.getElementById(cardId);
-                if (!elementoCartao) return;
-                const dadosCartao = JSON.parse(elementoCartao.dataset.cardData);
-                const jogadores = dadosCartao.jogadores || [];
-
-                // 1. Ordenar por tamanho
+                const el = document.getElementById(cardId); if (!el) return;
+                const dados = JSON.parse(el.dataset.cardData);
+                const jogadores = dados.jogadores || [];
                 const ordemTamanhos = { 'PP': 1, 'P': 2, 'M': 3, 'G': 4, 'GG': 5, 'XG': 6 };
                 jogadores.sort((a, b) => (ordemTamanhos[a.tamanho] || 99) - (ordemTamanhos[b.tamanho] || 99));
-
-                // 2. Gerar as strings agrupadas (LÓGICA CORRIGIDA)
-                let nomesString = '';
-                let numerosString = '';
-                let tamanhoAtual = null;
-
+                let nomesString = '', numerosString = '', tamanhoAtual = null;
                 jogadores.forEach(j => {
-                    if (j.tamanho !== tamanhoAtual) {
+                     if (j.tamanho !== tamanhoAtual) {
                         tamanhoAtual = j.tamanho;
                         const separador = `----------- ${tamanhoAtual} -----------`;
-                        if (nomesString !== '') { // Adiciona um espaço antes do novo grupo
-                             nomesString += `\n${separador}\n`;
-                             numerosString += `\n${separador}\n`;
-                        } else { // Para o primeiro grupo (PP), não adiciona o espaço antes
-                             nomesString += `${separador}\n`;
-                             numerosString += `${separador}\n`;
+                        if (nomesString !== '') {
+                            nomesString += `\n${separador}\n`; numerosString += `\n${separador}\n`;
+                        } else {
+                            nomesString += `${separador}\n`; numerosString += `${separador}\n`;
                         }
                     }
-                    nomesString += `${j.nome || ''}\n`;
-                    numerosString += `${j.numero || ''}\n`;
+                    nomesString += `${j.nome || ''}\n`; numerosString += `${j.numero || ''}\n`;
                 });
-
-                corelNomes.value = nomesString.trimEnd(); // Usar trimEnd para não remover espaços no início
-                corelNumeros.value = numerosString.trimEnd();
+                document.getElementById('corel-nomes').value = nomesString.trim();
+                document.getElementById('corel-numeros').value = numerosString.trim();
                 modalExport.style.display = 'flex';
             }
 
+            function copiarParaClipboard(elementId, tipo) { document.getElementById(elementId).select(); document.execCommand('copy'); alert(`${tipo} copiados para a área de transferência!`); }
             document.getElementById('btn-copiar-nomes').addEventListener('click', () => copiarParaClipboard('corel-nomes', 'Nomes'));
             document.getElementById('btn-copiar-numeros').addEventListener('click', () => copiarParaClipboard('corel-numeros', 'Números'));
             document.getElementById('btn-fechar-export-modal').addEventListener('click', () => modalExport.style.display = 'none');
-            modalExport.addEventListener('click', (e) => { if (e.target === modalExport) modalExport.style.display = 'none'; });
 
-            function copiarParaClipboard(elementId, tipo) {
-                const textarea = document.getElementById(elementId);
-                textarea.select();
-                document.execCommand('copy');
-                alert(`${tipo} copiados para a área de transferência!`);
-            }
-
-
-            // ---- FUNÇÕES AUXILIARES E EVENT LISTENERS ----
-            function inicializarSortable() { const listasCartoes = document.querySelectorAll('.cartoes'); listasCartoes.forEach(lista => { new Sortable(lista, { group: 'kanban', animation: 150, ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen', onEnd: salvarOrdemNoFirestore }); }); }
-            function atualizarContadores() { document.querySelectorAll('.coluna').forEach(coluna => { const contador = coluna.querySelector('.contador-cartoes'); const numCartoes = coluna.querySelectorAll('.cartao').length; contador.textContent = numCartoes; }); }
-            function obterCorBordaPorData(data) { if (!data) return 'transparent'; const hoje = new Date(); hoje.setHours(0,0,0,0); const dataEntrega = new Date(data + 'T00:00:00'); const diffDias = Math.ceil((dataEntrega - hoje) / (1000 * 60 * 60 * 24)); if (diffDias < 0) return '#d93f3f'; if (diffDias <= 3) return '#e89c33'; return '#36b37e'; }
-            const toggleSwitch = document.getElementById('checkbox'); function switchTheme(e) { if (e.target.checked) { document.body.classList.add('dark-mode'); localStorage.setItem('theme', 'dark'); } else { document.body.classList.remove('dark-mode'); localStorage.setItem('theme', 'light'); } }
-            toggleSwitch.addEventListener('change', switchTheme, false); const currentTheme = localStorage.getItem('theme'); if (currentTheme === 'dark') { document.body.classList.add('dark-mode'); toggleSwitch.checked = true; }
+            function inicializarSortable() { document.querySelectorAll('.cartoes').forEach(l => { new Sortable(l, { group: 'kanban', animation: 150, ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen', onEnd: salvarOrdemNoFirestore }); }); }
+            function atualizarContadores() { document.querySelectorAll('.coluna').forEach(c => { c.querySelector('.contador-cartoes').textContent = c.querySelectorAll('.cartao').length; }); }
+            function obterCorBordaPorData(data) { if (!data) return 'transparent'; const hoje = new Date(); hoje.setHours(0,0,0,0); const dataEntrega = new Date(data + 'T00:00:00'); const diff = Math.ceil((dataEntrega - hoje) / (1000 * 60 * 60 * 24)); if (diff < 0) return '#d93f3f'; if (diff <= 3) return '#e89c33'; return '#36b37e'; }
+            
+            const toggleSwitch = document.getElementById('checkbox');
+            toggleSwitch.addEventListener('change', (e) => { document.body.classList.toggle('dark-mode', e.target.checked); localStorage.setItem('theme', e.target.checked ? 'dark' : 'light'); });
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme === 'dark') { document.body.classList.add('dark-mode'); toggleSwitch.checked = true; }
+            
             document.getElementById('btn-novo-pedido').addEventListener('click', abrirModalParaNovo);
             document.getElementById('btn-cancelar-modal').addEventListener('click', () => modal.style.display = 'none');
             modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
-            document.getElementById('quantidade').addEventListener('input', () => gerarCamposJogadores(parseInt(document.getElementById('quantidade').value, 10) || 0));
+            document.getElementById('quantidade').addEventListener('input', (e) => gerarCamposJogadores(parseInt(e.target.value, 10) || 0));
             document.getElementById('arte').addEventListener('change', (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { document.getElementById('arte-preview').src = event.target.result; document.getElementById('arte-preview').style.display = 'block'; document.getElementById('arte-base64').value = event.target.result; }; reader.readAsDataURL(file); });
+            
             async function criarColunasIniciais() { const colunas = [ { id: 'coluna-1', titulo: 'Novos Pedidos', order: 0, cartoes: [] }, { id: 'coluna-2', titulo: 'Arte / Design', order: 1, cartoes: [] }, { id: 'coluna-3', titulo: 'Em Produção', order: 2, cartoes: [] }, { id: 'coluna-4', titulo: 'Pronto p/ Entrega', order: 3, cartoes: [] } ]; const batch = db.batch(); colunas.forEach(col => { const docRef = db.collection("kanban-board").doc(col.id); batch.set(docRef, col); }); await batch.commit(); }
+            
+            // --- VERIFICAÇÃO DE DADOS DO ORGANIZADOR ---
+            const dadosImportados = localStorage.getItem('novoPedidoData');
+            if (dadosImportados) {
+                const jogadores = JSON.parse(dadosImportados);
+                abrirModalComDados(jogadores);
+                localStorage.removeItem('novoPedidoData'); // Limpa os dados para não reabrir
+            }
+
             carregarQuadroEmTempoReal();
         });
     </script>
 </body>
 </html>
-
-
-
 
