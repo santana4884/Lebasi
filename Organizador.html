@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizador de Pedidos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cor-fundo: #f4f7fd;
+            --cor-cartao-fundo: #ffffff;
+            --cor-texto-primaria: #172b4d;
+            --cor-texto-secundaria: #5e6c84;
+            --cor-sombra: rgba(23, 43, 77, 0.1);
+            --cor-borda: #dfe1e6;
+            --cor-azul-principal: #ff6400;
+            --cor-azul-hover: #fd864f;
+            --espacamento: 16px;
+            --raio-borda: 8px;
+        }
+
+        body.dark-mode {
+            --cor-fundo: #0d1117;
+            --cor-cartao-fundo: #21262d;
+            --cor-texto-primaria: #c9d1d9;
+            --cor-texto-secundaria: #8b949e;
+            --cor-sombra: rgba(0, 0, 0, 0.2);
+            --cor-borda: #30363d;
+            --cor-azul-principal: #ff6400;
+            --cor-azul-hover: #fd864f;
+        }
+
+        html { height: 100%; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto-primaria);
+            margin: 0;
+            height: 100%;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+            padding: var(--espacamento);
+        }
+        .container-principal {
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--espacamento);
+            flex-shrink: 0;
+        }
+        .header-esquerda {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        h1 { font-size: 1.8rem; margin: 0; }
+        .theme-switch-wrapper { display: flex; align-items: center; }
+        .theme-switch { display: inline-block; height: 24px; position: relative; width: 44px; }
+        .theme-switch input { display:none; }
+        .slider { background-color: #ccc; bottom: 0; cursor: pointer; left: 0; position: absolute; right: 0; top: 0; transition: .4s; border-radius: 24px; }
+        .slider:before { background-color: #fff; bottom: 4px; content: ""; height: 16px; left: 4px; position: absolute; transition: .4s; width: 16px; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--cor-azul-principal); }
+        input:checked + .slider:before { transform: translateX(20px); }
+        nav { display: flex; gap: 12px; }
+        .nav-link {
+            text-decoration: none;
+            color: var(--cor-texto-primaria);
+            background-color: var(--cor-cartao-fundo);
+            padding: 8px 16px;
+            border-radius: var(--raio-borda);
+            font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px var(--cor-sombra);
+        }
+        .nav-link:hover {
+            background-color: var(--cor-azul-principal);
+            color: white;
+        }
+        .organizador-container {
+            flex-grow: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--espacamento);
+            background-color: var(--cor-cartao-fundo);
+            padding: var(--espacamento);
+            border-radius: var(--raio-borda);
+            box-shadow: 0 4px 8px var(--cor-sombra);
+            min-height: 0;
+        }
+        .painel { display: flex; flex-direction: column; }
+        .painel h2 { margin-top: 0; border-bottom: 2px solid var(--cor-borda); padding-bottom: 8px; }
+        textarea {
+            width: 100%;
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid var(--cor-borda);
+            border-radius: var(--raio-borda);
+            font-family: monospace;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto-primaria);
+            resize: none;
+        }
+        .actions-container {
+            display: flex;
+            gap: 12px;
+            margin-top: var(--espacamento);
+        }
+        .btn-acao {
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: var(--raio-borda);
+            cursor: pointer;
+            transition: background-color 0.2s ease, opacity 0.2s ease;
+            flex-grow: 1;
+        }
+        #btn-organizar { background-color: var(--cor-azul-principal); }
+        #btn-organizar:hover { background-color: var(--cor-azul-hover); }
+
+        #btn-criar-kanban {
+            background-color: #00875A; /* Verde */
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        #btn-criar-kanban:not(:disabled):hover { background-color: #006644; }
+        #btn-criar-kanban:not(:disabled) {
+            opacity: 1;
+            cursor: pointer;
+        }
+        
+        .resultado-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .btn-copiar {
+             background-color: var(--cor-texto-secundaria);
+             color: white;
+             border: none;
+             padding: 8px 12px;
+             font-size: 0.9rem;
+             font-weight: 500;
+             border-radius: var(--raio-borda);
+             cursor: pointer;
+             transition: background-color 0.2s ease;
+             min-width: 80px; /* Largura mínima para evitar que o layout quebre */
+             text-align: center;
+        }
+        .btn-copiar:hover { background-color: var(--cor-texto-primaria); }
+
+        @media (max-width: 768px) {
+            body { height: auto; }
+            .organizador-container { grid-template-columns: 1fr; height: auto; }
+            textarea { min-height: 150px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-principal">
+        <header>
+            <div class="header-esquerda">
+                <h1>Organizador de Pedidos</h1>
+                 <div class="theme-switch-wrapper">
+                     <label class="theme-switch" for="checkbox">
+                         <input type="checkbox" id="checkbox" />
+                         <div class="slider round"></div>
+                     </label>
+                 </div>
+            </div>
+            <nav>
+                <a href="index.html" class="nav-link">Ir para o Kanban</a>
+            </nav>
+        </header>
+
+        <div class="organizador-container">
+            <div class="painel">
+                <h2>1. Cole a lista do cliente aqui</h2>
+                <textarea id="input-lista" placeholder="Exemplo:&#10;Ana P 22&#10;Kaio Gabriel&#10;Tam: PP&#10;Num: 88&#10;&#10;3 M NUMERAÇÃO 10/12/14"></textarea>
+                <div class="actions-container">
+                    <button class="btn-acao" id="btn-organizar">Organizar Lista</button>
+                    <button class="btn-acao" id="btn-criar-kanban" disabled>Criar Pedido no Kanban</button>
+                </div>
+            </div>
+            <div class="painel" style="overflow-y: auto;">
+                <h2>2. Copie os resultados</h2>
+
+                <!-- NOVO BLOCO PARA POWER DUPLICATE -->
+                <div class="resultado-actions">
+                    <label for="output-powerduplicate">Resultado para Power Duplicate</label>
+                    <button class="btn-copiar" id="btn-copiar-powerduplicate">Copiar</button>
+                </div>
+                <textarea id="output-powerduplicate" readonly></textarea>
+                <!-- FIM DO NOVO BLOCO -->
+
+                <div class="resultado-actions" style="margin-top: 16px;">
+                    <label for="output-nomes">Nomes (Separados)</label>
+                    <button class="btn-copiar" id="btn-copiar-nomes">Copiar</button>
+                </div>
+                <textarea id="output-nomes" readonly></textarea>
+
+                 <div class="resultado-actions" style="margin-top: 16px;">
+                    <label for="output-numeros">Números (Separados)</label>
+                    <button class="btn-copiar" id="btn-copiar-numeros">Copiar</button>
+                </div>
+                <textarea id="output-numeros" readonly></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const btnOrganizar = document.getElementById('btn-organizar');
+        const inputLista = document.getElementById('input-lista');
+        const outputNomes = document.getElementById('output-nomes');
+        const outputNumeros = document.getElementById('output-numeros');
+        const btnCriarKanban = document.getElementById('btn-criar-kanban');
+        
+        const outputPowerDuplicate = document.getElementById('output-powerduplicate');
+        const btnCopiarPowerDuplicate = document.getElementById('btn-copiar-powerduplicate');
+
+        let jogadoresOrganizados = [];
+        
+        btnOrganizar.addEventListener('click', () => {
+            const texto = inputLista.value;
+            jogadoresOrganizados = parseTextoLista(texto);
+            
+            const ordemTamanhos = { 'PP': 1, 'P': 2, 'M': 3, 'G': 4, 'GG': 5, 'XG': 6 };
+            jogadoresOrganizados.sort((a, b) => (ordemTamanhos[a.tamanho] || 99) - (ordemTamanhos[b.tamanho] || 99));
+
+            let nomesString = '';
+            let numerosString = '';
+            let powerDuplicateString = '';
+            let tamanhoAtual = null;
+
+            jogadoresOrganizados.forEach(j => {
+                powerDuplicateString += `${j.nome || ''} ${j.numero || ''} ${j.tamanho || ''}\n`;
+
+                if (j.tamanho !== tamanhoAtual) {
+                    tamanhoAtual = j.tamanho;
+                    const separador = `----------- ${tamanhoAtual} -----------`;
+                     if (nomesString !== '') {
+                         nomesString += `\n${separador}\n`;
+                         numerosString += `\n${separador}\n`;
+                     } else {
+                         nomesString += `${separador}\n`;
+                         numerosString += `${separador}\n`;
+                     }
+                }
+                nomesString += `${j.nome || ''}\n`;
+                numerosString += `${j.numero || ''}\n`;
+            });
+
+            outputNomes.value = nomesString.trimEnd();
+            outputNumeros.value = numerosString.trimEnd();
+            outputPowerDuplicate.value = powerDuplicateString.trimEnd();
+
+            if (jogadoresOrganizados.length > 0) {
+                btnCriarKanban.disabled = false;
+            }
+        });
+
+        btnCriarKanban.addEventListener('click', () => {
+            if (jogadoresOrganizados.length > 0) {
+                localStorage.setItem('novoPedidoData', JSON.stringify(jogadoresOrganizados));
+                window.location.href = 'index.html';
+            }
+        });
+
+        function parseTextoLista(texto) {
+            const linhas = texto.split('\n').map(l => l.trim()).filter(l => l);
+            let jogadores = [];
+            let i = 0;
+
+            while (i < linhas.length) {
+                let linha = linhas[i];
+
+                // --- NOVO FORMATO ADICIONADO AQUI ---
+                // Ex: Brendinha:01:pp
+                let matchFormatoComDoisPontos = linha.match(/^(.*):\s*(\d+)\s*:(.*)$/i);
+                if (matchFormatoComDoisPontos) {
+                    const [, nome, numero, tamanho] = matchFormatoComDoisPontos;
+                    jogadores.push({
+                        nome: nome.trim(),
+                        numero: numero,
+                        tamanho: tamanho.trim().toUpperCase()
+                    });
+                    i++;
+                    continue;
+                }
+                // --- FIM DA ADIÇÃO ---
+                
+                // --- Regra para "Nome Numero Tamanho" ---
+                let matchCompleto = linha.match(/^(.*)\s+(\d+)\s+([A-Z]{1,2})$/i);
+                 if (matchCompleto) {
+                    const [, nome, numero, tamanho] = matchCompleto;
+                    const tamanhosValidosCheck = ['PP', 'P', 'M', 'G', 'GG', 'XG'];
+                    if(tamanhosValidosCheck.includes(tamanho.toUpperCase())){
+                        jogadores.push({
+                            nome: nome.trim(),
+                            numero: numero,
+                            tamanho: tamanho.toUpperCase()
+                        });
+                        i++;
+                        continue;
+                    }
+                }
+
+                // Regra para "3 M NUMERAÇÃO 10/12/14"
+                let matchResumo = linha.match(/^(\d+)\s+([A-Z]{1,2})\s+NUMERAÇ[AÃ]O\s+([0-9\s/]+)/i);
+                if (matchResumo) {
+                    const [, quantidade, tamanho, numerosStr] = matchResumo;
+                    const numeros = numerosStr.split(/[\s/]+/).filter(Boolean);
+                    for (let n = 0; n < parseInt(quantidade, 10); n++) {
+                        jogadores.push({
+                            nome: '',
+                            numero: numeros[n] || '',
+                            tamanho: tamanho.toUpperCase()
+                        });
+                    }
+                    i++;
+                    continue;
+                }
+                
+                // Regra para "Nome: ... Tam: ... Num: ..."
+                if (linha.match(/nome:/i)) {
+                    let jogador = {};
+                    jogador.nome = linha.replace(/nome:/i, '').trim();
+                    if (linhas[i + 1] && linhas[i + 1].match(/tam:/i)) {
+                        jogador.tamanho = linhas[i + 1].replace(/tam:/i, '').trim().toUpperCase();
+                        i++;
+                    }
+                    if (linhas[i + 1] && linhas[i + 1].match(/num:|número:/i)) {
+                        jogador.numero = linhas[i + 1].replace(/num:|número:/i, '').trim();
+                        i++;
+                    }
+                    jogadores.push(jogador);
+                    i++;
+                    continue;
+                }
+
+                // Regra para "Nome Tamanho Numero" numa só linha
+                let matchLinhaUnica = linha.match(/^(.*?)\s+([A-Z]{1,2})\.?\s+([0-9]+)$/i);
+                 if (matchLinhaUnica) {
+                    const [, nome, tamanho, numero] = matchLinhaUnica;
+                    const tamanhosValidosCheck = ['PP', 'P', 'M', 'G', 'GG', 'XG'];
+                    if (!tamanhosValidosCheck.includes(nome.toUpperCase())) {
+                        jogadores.push({
+                            nome: nome.trim(),
+                            tamanho: tamanho.toUpperCase(),
+                            numero: numero
+                        });
+                        i++;
+                        continue;
+                    }
+                 }
+                
+                // Regra padrão "Nome \n Tamanho \n Numero"
+                const nome = linha;
+                const tamanho = linhas[i + 1];
+                const numero = linhas[i + 2];
+                
+                const tamanhosValidos = ['PP', 'P', 'M', 'G', 'GG', 'XG'];
+                if(tamanho && tamanhosValidos.includes(tamanho.toUpperCase().replace('.', '')) && numero && !isNaN(parseInt(numero, 10))) {
+                     jogadores.push({
+                         nome: nome,
+                         tamanho: tamanho.toUpperCase().replace('.', ''),
+                         numero: numero
+                     });
+                     i += 3;
+                     continue;
+                }
+                
+                i++;
+            }
+            return jogadores;
+        }
+
+        btnCopiarPowerDuplicate.addEventListener('click', (e) => copiarParaClipboard('output-powerduplicate', e.target, 'Lista Power Duplicate'));
+        document.getElementById('btn-copiar-nomes').addEventListener('click', (e) => copiarParaClipboard('output-nomes', e.target, 'Nomes'));
+        document.getElementById('btn-copiar-numeros').addEventListener('click', (e) => copiarParaClipboard('output-numeros', e.target, 'Números'));
+        
+        function copiarParaClipboard(elementId, buttonElement, tipo) {
+            const textarea = document.getElementById(elementId);
+            textarea.select();
+            document.execCommand('copy');
+            
+            const originalText = buttonElement.innerText;
+            buttonElement.innerText = 'Copiado!';
+            setTimeout(() => {
+                buttonElement.innerText = "Copiar";
+            }, 2000);
+        }
+
+        const toggleSwitch = document.getElementById('checkbox');
+        function switchTheme(e) {
+            if (e.target.checked) {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+        toggleSwitch.addEventListener('change', switchTheme, false);
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            toggleSwitch.checked = true;
+        }
+    });
+    </script>
+</body>
+</html>
+
